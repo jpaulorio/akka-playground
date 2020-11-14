@@ -1,14 +1,23 @@
 package com.jplfds.perceptron
 
 import akka.NotUsed
+import akka.actor.typed.scaladsl.AskPattern.{Askable, schedulerFromActorSystem}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
+import akka.util.Timeout
 import com.jplfds.perceptron.Neuron.{QueryInput, TrainingInput}
+import org.slf4j.LoggerFactory
 
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.runtime.RichInt
+
+case class Reply(msg: List[Double])
 
 object Main {
 
+  implicit var system: ActorSystem[_] = null
+  val logger = LoggerFactory.getLogger("com.jplfds.perceptron.Main")
 
   def apply(): Behavior[NotUsed] = {
     Behaviors.setup { context =>
@@ -29,14 +38,22 @@ object Main {
   }
 
   private def trainPerceptron(neuron: ActorRef[Neuron.NeuronInput]): Unit = {
-    (1 to 10).foreach(_ => {
-      (0 to 7).foreach(x => {
-        val input = generateInput(x)
+    implicit val context: ExecutionContextExecutor = system.executionContext
+    import scala.language.postfixOps
+
+    implicit val timeout: Timeout = Timeout(5 seconds)
+    (1 to 6).foreach(x => {
+      (0 to 7).foreach(y => {
+        val input = generateInput(y)
         val result = not(input.dropRight(1).reduce((a, b) => a & b)) // nand
         //        val result = (input.dropRight(1).reduce((a, b) => a & b)) // and
         //        val result = (input.dropRight(1).reduce((a, b) => a | b)) // or
         //        val result = not(input.dropRight(1).reduce((a, b) => a | b)) // nor
-        neuron ! TrainingInput(input.map(_.toDouble), result)
+        val future: Future[List[Double]] = neuron ? (replyTo => TrainingInput(input.map(_.toDouble), result, replyTo))
+        future.onComplete({
+          case scala.util.Success(w) => logger.info("Weights in iteration {} sample {}: {}", x, y, w)
+          case scala.util.Failure(e) => logger.error("Message failed: {}", e)
+        })
       })
     })
   }
@@ -60,6 +77,6 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    ActorSystem(Main(), "NeuralNet")
+    system = ActorSystem(Main(), "NeuralNet")
   }
 }

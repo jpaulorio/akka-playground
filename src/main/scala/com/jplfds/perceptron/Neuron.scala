@@ -12,7 +12,7 @@ object Neuron {
 
   trait NeuronInput
 
-  final case class TrainingInput(value: List[Double], expectedOutput: Double) extends NeuronInput
+  final case class TrainingInput(value: List[Double], expectedOutput: Double, replyTo: ActorRef[List[Double]]) extends NeuronInput
   final case class QueryInput(value: List[Double]) extends NeuronInput
 
   val logger = LoggerFactory.getLogger(classOf[Neuron])
@@ -22,10 +22,12 @@ object Neuron {
   private def neuron(weights: List[Double], nextLayer: ActorRef[LayerInput]): Behavior[NeuronInput] = {
     Behaviors.receive { (context, message) =>
       message match {
-        case TrainingInput(inputs, expectedOutput) =>
+        case TrainingInput(inputs, expectedOutput, replyTo) =>
           val computedOutput = computeOutput(inputs, weights)
           nextLayer ! LayerDoubleInput(computedOutput)
-          neuron(updateWeights(inputs, weights, expectedOutput, computedOutput), nextLayer)
+          val updatedWeights = updateWeights(inputs, weights, expectedOutput, computedOutput)
+          replyTo ! updatedWeights
+          neuron(updatedWeights, nextLayer)
         case QueryInput(inputs) =>
           val computedOutput = computeOutput(inputs, weights)
           context.log.info2("Query output: {} for inputs: {}", computedOutput, inputs.dropRight(1))
