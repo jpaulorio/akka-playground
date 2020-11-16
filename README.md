@@ -58,3 +58,8 @@ Iteration 6:
  ![Iteration 6a](./images/iteration-6.png)     
  
  ![Iteration 6b](./images/iteration-6b.png)     
+ 
+ Animation:
+ 
+  ![Animation](./images/animation.gif)
+  
