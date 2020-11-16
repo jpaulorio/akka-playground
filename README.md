@@ -24,3 +24,35 @@ The Perceptron project was written by me.
 ### Running the ChatRoom Program
 
 3. Run `java -cp ./target/scala-2.13/akkaBasics-assembly-0.1-SNAPSHOT.jar com.jplfds.chat.Main`
+
+## Perceptron
+
+The perceptron example trains a perceptron to learn the NAND boolean operation.
+
+After 6 iterations it learns to separate the input 1, 1, 1 from the others.
+
+Below are the plots of the decision boundary after each training iteration:
+
+Iteration 1:
+
+ ![Iteration 1](./images/iteration-1.png)
+ 
+Iteration 2:
+
+ ![Iteration 2](./images/iteration-2.png)
+ 
+Iteration 3:
+
+ ![Iteration 3](./images/iteration-3.png)
+ 
+Iteration 4:
+
+ ![Iteration 4](./images/iteration-4.png)
+ 
+Iteration 5:
+
+ ![Iteration 5](./images/iteration-5.png)
+ 
+Iteration 6:
+
+ ![Iteration 6](./images/iteration-6.png)     

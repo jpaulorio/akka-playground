@@ -13,11 +13,15 @@ lazy val akkaBasics = (project in file(".")).
     mainClass in assembly := Some("com.jplfds.AkkaBasics"),
   )
 
+resolvers += "jzy3d" at "https://maven.jzy3d.org/releases/"
+
 libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.0" % Test
 libraryDependencies ++= Seq("org.slf4j" % "slf4j-api" % "1.7.5",
   "org.slf4j" % "slf4j-simple" % "1.7.5")
 libraryDependencies += "org.apache.commons" % "commons-math3" % "3.6.1"
+libraryDependencies += "org.jzy3d" % "jzy3d-api" % "1.0.2"
+
 
 
 
